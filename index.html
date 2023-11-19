@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: url('배경.png') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        #imageContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        #mainImage, #hoverImage {
+            position: absolute;
+            top: 550px;
+            left: 1000px; /* 초기 x축 위치를 1000px로 설정 */
+            width: 200px;
+            height: 200px;
+            opacity: 1;
+            transition: opacity 0.5s, transform 1s;
+        }
+
+        #hoverImage {
+            opacity: 0;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mainImage = document.getElementById('mainImage');
+            const hoverImage = document.getElementById('hoverImage');
+            const imageContainer = document.getElementById('imageContainer');
+
+            let isMainImageVisible = true;
+            let isKeyPressed = false;
+            let direction = 0;
+            const speed = 1;
+            const jumpPower = 30; // 점프의 세기 조절
+            const gravity = 0.4; // 중력을 양수로 설정
+            let positionY = 500;
+            let velocityY = 0;
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+                    isKeyPressed = true;
+                    direction = (event.key === 'ArrowLeft') ? -1 : 1;
+                    moveImage();
+                } else if (event.key === ' ') {
+                    animateJump();
+                }
+            });
+
+            document.addEventListener('keyup', function () {
+                if (isKeyPressed) {
+                    isKeyPressed = false;
+                    direction = 0;
+                    mainImage.src = '평소.png';
+                }
+            });
+
+            function moveImage() {
+                if (isKeyPressed) {
+                    mainImage.style.transition = 'left 0s';
+                    mainImage.style.left = `${parseFloat(mainImage.style.left || 1000) + direction * speed}px`; /* 초기 x축 위치를 1000px로 설정 */
+
+                    setTimeout(() => {
+                        mainImage.style.transition = 'opacity 0.5s, transform 1s';
+                        moveImage();
+                    }, 100);
+
+                    if (direction === -1 && isMainImageVisible) {
+                        mainImage.src = '브이전.png';
+                    } else if (direction === 1 && isMainImageVisible) {
+                        mainImage.src = '브이전R.png';
+                    }
+                }
+            }
+
+            function animateJump() {
+                if (positionY === 500) { // 이미 점프 중이 아닌 경우에만 실행
+                    velocityY = -jumpPower; // 초기 속도 (위로 이동)
+                    requestAnimationFrame(jump);
+                }
+                
+                function jump() {
+                    positionY += velocityY;
+                    velocityY += gravity;
+
+                    if (positionY >= 500) {
+                        positionY = 500;
+                        velocityY = 0;
+                        mainImage.style.transform = 'translateY(0)';
+                    } else {
+                        mainImage.style.transform = `translateY(${positionY}px)`;
+                        requestAnimationFrame(jump);
+                    }
+                }
+            }
+        });
+    </script>
+</head>
+<body>
+    <div id="imageContainer">
+        <img id="mainImage" src="평소.png" alt="Main Image">
+        <img id="hoverImage" src="브이후.png" alt="Hover Image">
+    </div>
+</body>
+</html>
